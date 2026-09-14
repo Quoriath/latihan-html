@@ -21,19 +21,19 @@ fetch(`https://api.github.com/repos/${owner}/${repo}/git/trees/main?recursive=1`
         const list = document.getElementById("list");
 
         if (!data.tree) {
-            list.innerHTML = "<li>Repository tidak ditemukan</li>";
+            list.innerHTML = "<li>Repositorynya ndak ada</li>";
             return;
         }
 
         data.tree
-            .filter(item => item.type === "blob")
+            .filter(item => item.type === "blob" && item.path !== "index.html")
             .forEach(item => {
                 const li = document.createElement("li");
                 const a = document.createElement("a");
 
                 a.textContent = item.path;
-                a.href = `https://github.com/${owner}/${repo}/blob/main/${item.path}`;
-                a.target = "_blank";
+                a.href = `/${repo}/${item.path}`;
+                a.target = "_self";
 
                 li.appendChild(a);
                 list.appendChild(li);
@@ -41,7 +41,7 @@ fetch(`https://api.github.com/repos/${owner}/${repo}/git/trees/main?recursive=1`
     })
     .catch(() => {
         document.getElementById("list").innerHTML =
-            "<li>Gagal mengambil isi repository</li>";
+            "<li>Ledukk</li>";
     });
 </script>
 
