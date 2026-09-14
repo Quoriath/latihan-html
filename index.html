@@ -11,25 +11,37 @@
 <ul id="list"></ul>
 
 <script>
-const user = "USERNAME";
-const repo = "NAMA-REPOSITORY";
+const path = location.pathname.split("/").filter(Boolean);
+const owner = location.hostname.split(".")[0];
+const repo = path[0] || `${owner}.github.io`;
 
-fetch(`https://api.github.com/repos/${user}/${repo}/contents/`)
-    .then(res => res.json())
+fetch(`https://api.github.com/repos/${owner}/${repo}/git/trees/main?recursive=1`)
+    .then(r => r.json())
     .then(data => {
         const list = document.getElementById("list");
 
-        data.forEach(item => {
-            const li = document.createElement("li");
-            const a = document.createElement("a");
+        if (!data.tree) {
+            list.innerHTML = "<li>Repository tidak ditemukan</li>";
+            return;
+        }
 
-            a.textContent = item.name;
-            a.href = item.html_url;
-            a.target = "_blank";
+        data.tree
+            .filter(item => item.type === "blob")
+            .forEach(item => {
+                const li = document.createElement("li");
+                const a = document.createElement("a");
 
-            li.appendChild(a);
-            list.appendChild(li);
-        });
+                a.textContent = item.path;
+                a.href = `https://github.com/${owner}/${repo}/blob/main/${item.path}`;
+                a.target = "_blank";
+
+                li.appendChild(a);
+                list.appendChild(li);
+            });
+    })
+    .catch(() => {
+        document.getElementById("list").innerHTML =
+            "<li>Gagal mengambil isi repository</li>";
     });
 </script>
 
